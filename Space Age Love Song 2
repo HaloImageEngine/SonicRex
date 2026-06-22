@@ -1,0 +1,226 @@
+//============================================================
+//  "Space Age Love Song" - A Flock of Seagulls
+//  Strudel instrumental arrangement
+//  DARK INDUSTRIAL REWORK — inspired by Ludovico Technique
+//  ~140 BPM, key of D major, D / Bm / G / D progression
+//  Full song structure: ~3:40, then loops.
+//  Instrumental only — lead is original melodic interpretation.
+//------------------------------------------------------------
+//  MODIFICATION LOG
+//  2026-06-22  Lux  Initial Strudel arrangement (dreamy new-wave).
+//  2026-06-22  Lux  DARK INDUSTRIAL REWORK:
+//                   - Replaced TR-808 with crushing industrial
+//                     kicks, metallic hits, noise layers
+//                   - Bass: heavy distorted sawtooth, low-passed
+//                   - Pads: dark supersaw, aggressive filtering
+//                   - Arpeggio: sawtooth w/ bite, delay cascade
+//                   - Added FM metallic textures, noise sweeps
+//                   - Intro reworked as ominous industrial build
+//                   - Overall: Ludovico Technique gothic energy
+//============================================================
+
+setcpm(140 / 4)   // 1 cycle = 1 bar @ 140 BPM, 4/4
+
+// ============================================================
+//  INDUSTRIAL DRUMS — crushing, metallic, relentless
+// ============================================================
+// heavy distorted kick, four on the floor
+let kickCrush = s("bd*4").bank("RolandTR909")
+  .shape(.65).gain(1.1).lpf(200).orbit(0)
+
+// industrial snare — gated, sharp
+let snareGate = s("~ sd ~ sd").bank("RolandTR909")
+  .shape(.4).decay(.08).gain(0.72).hpf(400).orbit(0)
+
+// metallic hi-hats, 16ths, cold and thin
+let hatsInd = s("hh*16").bank("RolandTR909")
+  .gain(0.18).hpf(6000).pan(sine.range(.35, .65).slow(2)).orbit(0)
+
+// open hat on the off, harsh
+let ohatInd = s("~ ~ ~ [~ oh]").bank("RolandTR909")
+  .gain(0.22).hpf(4000).decay(.15).orbit(0)
+
+// metallic percussion — FM hits, industrial clank
+let metalHit = s("hh:3*8").bank("RolandTR909")
+  .gain(0.14).hpf(8000).pan(rand).orbit(0)
+
+// noise sweep — industrial texture, slow filter rise
+let noiseTex = s("noise").slow(4)
+  .lpf(sine.range(200, 2000).slow(8)).gain(0.08)
+  .room(.3).orbit(4)
+
+let drumsLite  = stack(kickCrush.gain(.7), hatsInd.gain(.1))
+let drumsMid   = stack(kickCrush, snareGate.gain(.5), hatsInd)
+let drumsFull  = stack(kickCrush, snareGate, hatsInd, ohatInd, metalHit)
+let drumsBuild = stack(kickCrush, snareGate, hatsInd, ohatInd, metalHit,
+  s("sd*16").bank("RolandTR909").gain(sine.range(0.05, 0.5).slow(8))
+    .hpf(1000).orbit(0))
+
+// ============================================================
+//  ARPEGGIO — sawtooth with bite, delay cascade
+// ============================================================
+let arpSig = note("[d5 fs5 a5 fs5 d5 a4]*2")
+  .s("sawtooth").attack(.003).decay(.1).sustain(.05).release(.15)
+  .lpf(4000).lpq(6)
+  .delay(.4).delaytime(.214).delayfeedback(.5)
+  .shape(.2).room(.35).gain(0.42).pan(0.65).orbit(1)
+
+let arpBm = note("[b4 d5 fs5 d5 b4 fs4]*2")
+  .s("sawtooth").attack(.003).decay(.1).sustain(.05).release(.15)
+  .lpf(4000).lpq(6)
+  .delay(.4).delaytime(.214).delayfeedback(.5)
+  .shape(.2).room(.35).gain(0.42).pan(0.65).orbit(1)
+
+let arpG = note("[g4 b4 d5 b4 g4 d4]*2")
+  .s("sawtooth").attack(.003).decay(.1).sustain(.05).release(.15)
+  .lpf(4000).lpq(6)
+  .delay(.4).delaytime(.214).delayfeedback(.5)
+  .shape(.2).room(.35).gain(0.42).pan(0.65).orbit(1)
+
+let arpFull = arrange(
+  [1, arpSig], [1, arpBm], [1, arpG], [1, arpSig]
+)
+
+// ============================================================
+//  BASS — grinding distorted sawtooth, relentless 8ths
+// ============================================================
+let bassMain = note("<d1 b0 g0 d1>").struct("x*8")
+  .s("sawtooth").lpf(slider(400, 80, 1200)).lpq(10)
+  .shape(.5).decay(.08).sustain(.08).gain(0.85).orbit(3)
+
+let bassBuild = note("<d1 b0 g0 a0>").struct("x*8")
+  .s("sawtooth").lpf(slider(600, 80, 1200)).lpq(8)
+  .shape(.55).decay(.1).sustain(.1).gain(0.88).orbit(3)
+
+// sub-bass drone layer (intro/build)
+let subDrone = note("<d1>").slow(4)
+  .s("sine").gain(0.55).lpf(120).orbit(3)
+
+// ============================================================
+//  PADS — dark, wide, aggressive filtering
+// ============================================================
+let padDark = note("<[d3,fs3,a3] [b2,d3,fs3] [g2,b2,d3] [d3,fs3,a3]>")
+  .s("supersaw").attack(.1).release(.6)
+  .lpf(slider(1200, 200, 4000)).lpq(5).lpenv(3)
+  .shape(.15).gain(0.35).room(.5).orbit(2)
+
+let padBuild = note("<[d3,fs3,a3] [b2,d3,fs3] [g2,b2,d3] [a2,cs3,e3]>")
+  .s("supersaw").attack(.08).release(.5)
+  .lpf(slider(2000, 200, 5000)).lpq(4).lpenv(4)
+  .shape(.2).gain(0.4).room(.55).orbit(2)
+
+let padChorus = note("<[d4,fs4,a4] [b3,d4,fs4] [g3,b3,d4] [d4,fs4,a4]>")
+  .s("supersaw").attack(.04).release(.5)
+  .lpf(slider(3200, 300, 6000)).lpq(3).lpenv(3)
+  .shape(.2).gain(0.48).room(.5).orbit(2)
+
+// ============================================================
+//  FM METALLIC TEXTURE — industrial atmosphere
+// ============================================================
+let fmTexture = s("sine").note("<d3 b2 g2 d3>")
+  .fm(3).fmh(sine.range(1, 5).slow(8))
+  .decay(.2).sustain(0).gain(0.15)
+  .delay(.3).room(.4).pan(rand).orbit(4)
+
+// dark atmospheric reverse-style swell
+let darkSwell = note("[d2,a2,d3]").slow(4)
+  .s("sawtooth").attack(1.5).decay(1).sustain(.3).release(2)
+  .lpf(sine.range(300, 1600).slow(4)).lpq(6)
+  .shape(.3).gain(0.2).room(.6).orbit(4)
+
+// ============================================================
+//  LEAD MELODY — cold, cutting, industrial edge
+// ============================================================
+let leadVerse = note("<[fs4 ~ fs4 e4] [d4 ~ b3 ~] [b3 a3 b3 ~] [d4 ~ ~ ~]>")
+  .s("sawtooth").lpf(2800).lpq(3)
+  .shape(.15).attack(.01).release(.15)
+  .delay(.3).delaytime(.214).delayfeedback(.35)
+  .room(.3).gain(0.42).orbit(2)
+
+let leadChorus = note("<[a4 ~ fs4 ~] [fs4 ~ d4 ~] [d4 ~ b3 a3] [a3 ~ d4 ~]>")
+  .s("sawtooth").lpf(3600).lpq(3)
+  .shape(.2).attack(.01).release(.25)
+  .delay(.35).delaytime(.214).delayfeedback(.4)
+  .room(.35).gain(0.5).orbit(2)
+
+// ============================================================
+//  SYNTH-VOCAL HOOK — dark formant, gothic power
+// ============================================================
+let hookMel = "<[a4 a4 fs4 ~] [d4 ~ e4 fs4]>"
+
+let vocalHook = note(hookMel)
+  .s("sawtooth").vowel("<a a e o>")
+  .shape(.15).attack(.02).release(.3).lpf(3000).lpq(2)
+  .room(.4).delay(.35).delaytime(.214).delayfeedback(.35)
+  .gain(0.6).orbit(2)
+
+let vocalPower = stack(
+  vocalHook,
+  note(hookMel).add(note(-12)).s("sawtooth").vowel("o")
+    .shape(.25).attack(.02).release(.3).lpf(2200).gain(.4).room(.3).orbit(2),
+  note(hookMel).add(note(7)).s("sawtooth").vowel("a")
+    .shape(.15).attack(.02).release(.3).lpf(3400).gain(.28).room(.4).orbit(2)
+)
+
+let vocalEcho = note(hookMel)
+  .s("sawtooth").vowel("<a o>")
+  .shape(.1).attack(.02).release(.4).lpf(2000).lpq(1)
+  .delay(.6).delaytime(.214).delayfeedback(.65).room(.85)
+  .gain(0.5).orbit(2)
+
+let outroSwell = note("[d1,d2,fs2,a2]").slow(8)
+  .s("sawtooth").attack(2).decay(3).sustain(.4).release(6)
+  .lpf(1000).lpq(3).shape(.3).gain(0.45).room(.85).orbit(2)
+
+// ============================================================
+//  ARRANGE  (~3:40)
+//
+//  Intro:        sub drone + noise, ominous build    (8 bars)
+//  Intro build:  kicks drop in, dark arp emerges     (8 bars)
+//  Verse 1:      full industrial band, cold lead     (16 bars)
+//  Break:        arp + FM texture, drums pull back   (8 bars)
+//  Verse 2:      full band, verse lead returns       (16 bars)
+//  Bridge/Build: drums intensify, snare roll builds  (8 bars)
+//  Chorus:       full power, cutting lead + chorus   (16 bars)
+//  Vocal Climax: dark formant hook x3                (6 bars)
+//  Echo trail:   feedback decay into void            (3 bars)
+//  Outro:        grinding swell into silence         (8 bars)
+// ============================================================
+arrange(
+  // ---- ominous industrial intro ----
+  [8,  stack(subDrone, darkSwell, noiseTex,
+             padDark.gain(.12).lpf(600))],
+  [8,  stack(subDrone, arpFull.gain(.25), drumsLite,
+             padDark.gain(.2), fmTexture, noiseTex)],
+
+  // ---- verse 1 (full industrial) ----
+  [16, stack(arpFull, padDark, bassMain, drumsFull,
+             leadVerse, fmTexture)],
+
+  // ---- instrumental break ----
+  [8,  stack(arpFull, padDark, bassMain.gain(.6),
+             drumsMid, fmTexture)],
+
+  // ---- verse 2 ----
+  [16, stack(arpFull, padDark, bassMain, drumsFull,
+             leadVerse, fmTexture, noiseTex)],
+
+  // ---- bridge / build (intensity rises) ----
+  [8,  stack(arpFull, padBuild, bassBuild, drumsBuild,
+             fmTexture, noiseTex)],
+
+  // ---- chorus (full dark power) ----
+  [16, stack(arpFull, padChorus, bassMain, drumsFull,
+             leadChorus, fmTexture, metalHit)],
+
+  // ---- vocal climax x3 ----
+  [6,  stack(padChorus, bassMain, drumsFull, vocalPower,
+             arpFull, fmTexture)],
+
+  // ---- echo trail-off into void ----
+  [3,  stack(vocalEcho, arpSig.gain(.2),
+             kickCrush.gain(.3), noiseTex)],
+
+  // ---- outro: grinding swell, then silence ----
+  [8,  stack(outroSwell, subDrone, noiseTex.gain(.04))]
+)
