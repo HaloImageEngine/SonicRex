@@ -1,0 +1,118 @@
+// "QUIET THUNDER" — an original power-ballad in Strudel
+// Paste this whole thing into strudel.cc and hit ▶ (or Ctrl/Cmd+Enter)
+//
+// Structure (uses arrange() so it plays straight through ~5+ minutes
+// instead of looping a short riff):
+//   1. Intro        — solo piano, Dm key            (8 cycles)
+//   2. Verse 1       — piano + soft bass             (8 cycles)
+//   3. Verse 2       — drums enter quietly           (8 cycles)
+//   4. Chorus 1      — full band                     (8 cycles)
+//   5. Bridge        — stripped back, tension        (8 cycles)
+//   6. Build         — crescendo into key change     (4 cycles)
+//   7. Solo          — key change to Em, lead line   (24 cycles)
+//   8. Final Chorus  — biggest arrangement, new key  (12 cycles)
+//   9. Outro         — solo piano, fades out         (12 cycles)
+//
+// Tempo: 70 bpm, 4 beats/cycle. Want it closer to a real 9-minute epic?
+// Bump the "24" on the solo section, or the "12"s on final chorus/outro.
+
+setcpm(70/4)
+
+// ---- KEY 1: D minor / F major (verses + first chorus) ----
+// chords used: Dm  Bb  F  C
+
+const intro = note("<[d3 f3 a3 d4 a3 f3] [bf2 d3 f3 bf3 f3 d3] [f2 a2 c3 f3 c3 a2] [c3 e3 g3 c4 g3 e3]>")
+  .sound("piano")
+  .gain(0.55)
+  .room(0.7)
+  .slow(2)
+
+const verse1 = stack(
+  note("<[d3 f3 a3 d4 a3 f3 a3 f3] [bf2 d3 f3 bf3 f3 d3 f3 d3] [f2 a2 c3 f3 c3 a2 c3 a2] [c3 e3 g3 c4 g3 e3 g3 e3]>")
+    .sound("piano").gain(0.5).room(0.5),
+  note("<d2 bf1 f1 c2>").sound("sawtooth").lpf(350).gain(0.45).release(0.8)
+)
+
+const verse2 = stack(
+  note("<[d3 f3 a3 d4 a3 f3 a3 f3] [bf2 d3 f3 bf3 f3 d3 f3 d3] [f2 a2 c3 f3 c3 a2 c3 a2] [c3 e3 g3 c4 g3 e3 g3 e3]>")
+    .sound("piano").gain(0.5).room(0.5),
+  note("<d2 bf1 f1 c2>").sound("sawtooth").lpf(400).gain(0.5),
+  s("bd ~ ~ ~ ~ ~ sd ~").gain(0.45),
+  s("hh*4").gain(0.2)
+)
+
+const chorus1 = stack(
+  note("<[d3,f3,a3] [bf2,d3,f3] [f2,a2,c3] [c3,e3,g3]>")
+    .sound("sawtooth").lpf(900).attack(0.05).release(0.4).gain(0.4).room(0.4),
+  note("<d2 bf1 f1 c2>").sound("sawtooth").lpf(500).gain(0.6),
+  s("bd ~ sd ~ bd bd sd ~").gain(0.8),
+  s("hh*8").gain(0.3),
+  note("<[d4 f4 a4 d5 a4 f4 d4 a4] [bf3 d4 f4 bf4 f4 d4 bf3 f4] [f3 a3 c4 f4 c4 a3 f3 c4] [c4 e4 g4 c5 g4 e4 c4 g4]>")
+    .sound("piano").gain(0.35).room(0.6)
+)
+
+const bridge = stack(
+  note("<[bf2 d3 f3 bf3] [c3 e3 g3 c4] [d3 f3 a3 d4] [d3 f3 a3 d4]>")
+    .sound("piano").gain(0.45).room(0.6).slow(2),
+  s("~ ~ ~ ~ sd ~ ~ ~").gain(0.3)
+)
+
+const buildUp = stack(
+  note("c3 e3 g3 c4 e4 g4 c5 e5").sound("piano").fast(2).gain(sine.range(0.3,0.7)).room(0.5),
+  s("bd*4").gain(saw.range(0.3,0.8)),
+  s("hh*8").gain(0.25)
+)
+
+// ---- KEY CHANGE: E minor / G major (solo + final chorus) ----
+// chords used: Em  C  G  D   (C is the pivot chord shared with key 1)
+
+const soloLead = note("<[e4 g4 b4 e5 d5 b4 g4 e4] [c4 e4 g4 c5 b4 g4 e4 c4] [g3 b3 d4 g4 fs4 d4 b3 g3] [d4 fs4 a4 d5 cs5 a4 fs4 d4]>")
+  .sound("sawtooth")
+  .shape(0.4)
+  .lpf(2200)
+  .attack(0.01)
+  .release(0.3)
+  .gain(0.55)
+  .room(0.5)
+  .delay(0.25)
+  .delaytime(0.1)
+  .delayfeedback(0.2)
+
+const soloBand = stack(
+  soloLead,
+  note("<[e3,g3,b3] [c3,e3,g3] [g2,b2,d3] [d3,fs3,a3]>")
+    .sound("sawtooth").lpf(900).gain(0.35).room(0.4).attack(0.05).release(0.4),
+  note("<e2 c2 g1 d2>").sound("sawtooth").lpf(500).gain(0.6),
+  s("bd ~ sd ~ bd bd sd ~").gain(0.85),
+  s("hh*8").gain(0.3),
+  s("oh ~ ~ ~ ~ ~ ~ ~").gain(0.2)
+)
+
+const finalChorus = stack(
+  note("<[e3,g3,b3] [c3,e3,g3] [g2,b2,d3] [d3,fs3,a3]>")
+    .sound("sawtooth").lpf(1100).gain(0.45).room(0.45).attack(0.05).release(0.4),
+  note("<e2 c2 g1 d2>").sound("sawtooth").lpf(550).gain(0.65),
+  s("bd ~ sd ~ bd bd sd ~").gain(0.9),
+  s("hh*8").gain(0.35),
+  note("<[e4 g4 b4 e5 b4 g4 e4 b4] [c4 e4 g4 c5 g4 e4 c4 g4] [g3 b3 d4 g4 d4 b3 g3 d4] [d4 fs4 a4 d5 a4 fs4 d4 a4]>")
+    .sound("piano").gain(0.4).room(0.6)
+)
+
+const outro = note("<[e3 g3 b3 e4 b3 g3] [c3 e3 g3 c4 g3 e3] [g2 b2 d3 g3 d3 b2] [d3 fs3 a3 d4 a3 fs3]>")
+  .sound("piano")
+  .slow(3)
+  .gain(saw.slow(12).range(0.5, 0.05))
+  .room(0.8)
+
+// ---- FULL ARRANGEMENT (plays straight through, ~5:15 total) ----
+arrange(
+  [8,  intro],
+  [8,  verse1],
+  [8,  verse2],
+  [8,  chorus1],
+  [8,  bridge],
+  [4,  buildUp],
+  [24, soloBand],
+  [12, finalChorus],
+  [12, outro]
+)
