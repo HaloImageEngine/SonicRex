@@ -1,0 +1,175 @@
+//============================================================
+//  "Space Age Love Song" - A Flock of Seagulls
+//  Strudel instrumental arrangement
+//  Feel: dreamy new-wave synth-pop, ~140 BPM, key of D major
+//  Chords: D / Bm / G / D  (throughout, gloriously simple)
+//  Full song structure: ~3:40, then loops.
+//  Instrumental only - lead is original melodic interpretation.
+//------------------------------------------------------------
+//  MODIFICATION LOG
+//  2026-06-22  Lux  Initial Strudel arrangement.
+//                   Sections via arrange(): arpeggio intro /
+//                   verse1 / instrumental / verse2 / bridge
+//                   build / chorus / outro fade.
+//============================================================
+
+setcpm(140 / 4)   // 1 cycle = 1 bar @ 140 BPM, 4/4
+
+// ============================================================
+//  SIGNATURE ARPEGGIO (the cascading picked D chord)
+//  Original picks through D/F#/A on high strings in triplets.
+//  This recreates that shimmering cascade.
+// ============================================================
+let arpSig = note("[d5 fs5 a5 fs5 d5 a4]*2")
+  .s("triangle").attack(.005).decay(.15).sustain(.08).release(.25)
+  .delay(.4).delaytime(.214).delayfeedback(.45)
+  .room(.5).gain(0.52).pan(0.65).orbit(1)
+
+// arp shifts for Bm and G bars
+let arpBm = note("[b4 d5 fs5 d5 b4 fs4]*2")
+  .s("triangle").attack(.005).decay(.15).sustain(.08).release(.25)
+  .delay(.4).delaytime(.214).delayfeedback(.45)
+  .room(.5).gain(0.52).pan(0.65).orbit(1)
+
+let arpG = note("[g4 b4 d5 b4 g4 d4]*2")
+  .s("triangle").attack(.005).decay(.15).sustain(.08).release(.25)
+  .delay(.4).delaytime(.214).delayfeedback(.45)
+  .room(.5).gain(0.52).pan(0.65).orbit(1)
+
+// full 4-bar arp cycle: D | Bm | G | D
+let arpFull = arrange(
+  [1, arpSig], [1, arpBm], [1, arpG], [1, arpSig]
+)
+
+// ---------- DRUMS ----------
+let kickSteady = s("bd*4").bank("RolandTR808").gain(0.85)
+let kickLite   = s("bd ~ bd ~").bank("RolandTR808").gain(0.8)
+let snare      = s("~ sd ~ sd").bank("RolandTR808").gain(0.6)
+let hats       = s("hh*16").bank("RolandTR808").gain(0.2)
+  .pan(sine.range(.4, .6).slow(2))
+let ohat       = s("~ ~ ~ [~ oh]").bank("RolandTR808").gain(0.18)
+let tom        = s("~ ~ ~ [lt mt]").bank("RolandTR808").gain(0.35)
+
+let drumsLite  = stack(kickLite, snare.gain(0.4), hats.gain(0.14))
+let drumsFull  = stack(kickSteady, snare, hats, ohat)
+let drumsBuild = stack(kickSteady, snare, hats, ohat, tom)
+
+// ---------- BASS (round, pulsing synth bass) ----------
+let bassMain = note("<d2 b1 g1 d2>").struct("x*8")
+  .s("sawtooth").lpf(slider(600, 100, 2000)).lpq(8)
+  .decay(.1).sustain(.1).gain(0.75).orbit(3)
+
+let bassBuild = note("<d2 b1 g1 a1>").struct("x*8")
+  .s("sawtooth").lpf(slider(900, 100, 2000)).lpq(6)
+  .decay(.12).sustain(.14).gain(0.8).orbit(3)
+
+// ---------- PADS (lush new-wave synth wash) ----------
+let padMain = note("<[d3,fs3,a3] [b2,d3,fs3] [g2,b2,d3] [d3,fs3,a3]>")
+  .s("supersaw").attack(.08).release(.6)
+  .lpf(slider(1800, 300, 5000)).lpq(3).lpenv(2)
+  .gain(0.38).room(.45).orbit(2)
+
+let padBuild = note("<[d3,fs3,a3] [b2,d3,fs3] [g2,b2,d3] [a2,cs3,e3]>")
+  .s("supersaw").attack(.06).release(.5)
+  .lpf(slider(2800, 300, 5000)).lpq(3).lpenv(3)
+  .gain(0.42).room(.5).orbit(2)
+
+let padChorus = note("<[d4,fs4,a4] [b3,d4,fs4] [g3,b3,d4] [d4,fs4,a4]>")
+  .s("supersaw").attack(.03).release(.5)
+  .lpf(slider(3800, 300, 6000)).lpq(2).lpenv(2)
+  .gain(0.5).room(.55).orbit(2)
+
+// ---------- LEAD MELODY (own interpretation of vocal contour) ----------
+// Verse-feel: gentle, stepping melody over D-Bm-G-D
+let leadVerse = note("<[fs4 ~ fs4 e4] [d4 ~ b3 ~] [b3 a3 b3 ~] [d4 ~ ~ ~]>")
+  .s("supersaw").lpf(2400).lpq(1.5)
+  .attack(.02).release(.2)
+  .delay(.3).delaytime(.214).delayfeedback(.3)
+  .room(.35).gain(0.45).orbit(2)
+
+// Chorus-feel: soaring, longer notes
+let leadChorus = note("<[a4 ~ fs4 ~] [fs4 ~ d4 ~] [d4 ~ b3 a3] [a3 ~ d4 ~]>")
+  .s("supersaw").lpf(3200).lpq(2)
+  .attack(.02).release(.35)
+  .delay(.35).delaytime(.214).delayfeedback(.4)
+  .room(.4).gain(0.55).orbit(2)
+
+// ---------- SHIMMER LAYER (high sparkle, chorus sections) ----------
+let shimmer = note("<[a5 fs5]*4 [fs5 d5]*4 [d5 b4]*4 [a5 fs5]*4>")
+  .s("triangle").gain(0.12).delay(.5).delaytime(.107)
+  .delayfeedback(.5).room(.6).pan(rand).orbit(1)
+
+// ---------- SYNTH-VOCAL HOOK (vowel formant, bridge/outro) ----------
+let hookMel = "<[a4 a4 fs4 ~] [d4 ~ e4 fs4]>"
+
+let vocalHook = note(hookMel)
+  .s("supersaw").vowel("<a a e o>")
+  .attack(.02).release(.3).lpf(3400).lpq(1)
+  .room(.4).delay(.35).delaytime(.214).delayfeedback(.35)
+  .gain(0.6).orbit(2)
+
+let vocalPower = stack(
+  vocalHook,
+  note(hookMel).add(note(-12)).s("sawtooth").vowel("o")
+    .attack(.02).release(.3).lpf(2400).gain(.35).room(.3).orbit(2),
+  note(hookMel).add(note(7)).s("supersaw").vowel("a")
+    .attack(.02).release(.3).lpf(3600).gain(.25).room(.4).orbit(2)
+)
+
+// trail-off echo
+let vocalEcho = note(hookMel)
+  .s("supersaw").vowel("<a o>")
+  .attack(.02).release(.4).lpf(2200).lpq(1)
+  .delay(.6).delaytime(.214).delayfeedback(.6).room(.85)
+  .gain(0.5).orbit(2)
+
+// final tonic swell
+let outroSwell = note("[d2,d3,fs3,a3]").slow(8)
+  .s("supersaw").attack(2).decay(3).sustain(.5).release(6)
+  .lpf(1400).lpq(2).gain(0.45).room(.9).orbit(2)
+
+// ============================================================
+//  ARRANGE  (~3:40, full song structure)
+//
+//  Intro:        arp alone, dreamy          (8 bars)
+//  Intro build:  arp + lite drums fade in   (8 bars)
+//  Verse 1:      full band, verse lead      (16 bars)
+//  Instrumental: arp + pads, no lead        (8 bars)
+//  Verse 2:      full band, verse lead      (16 bars)
+//  Bridge/Build: key lifts to A, drums push (8 bars)
+//  Chorus:       full power, soaring lead   (16 bars)
+//  Vocal Climax: formant hook x3            (6 bars)
+//  Echo trail:   feedback decay             (3 bars)
+//  Outro swell:  long D chord ring-out      (8 bars)
+// ============================================================
+arrange(
+  // ---- dreamy intro ----
+  [8,  stack(arpFull, padMain.gain(.2))],
+  [8,  stack(arpFull, padMain.gain(.3), drumsLite.gain(.4))],
+
+  // ---- verse 1 ----
+  [16, stack(arpFull, padMain, bassMain, drumsFull, leadVerse)],
+
+  // ---- instrumental break (arp shines) ----
+  [8,  stack(arpFull, padMain, bassMain, drumsLite)],
+
+  // ---- verse 2 ----
+  [16, stack(arpFull, padMain, bassMain, drumsFull, leadVerse)],
+
+  // ---- bridge / build (A chord lift, drums push) ----
+  [8,  stack(arpFull, padBuild, bassBuild, drumsBuild)],
+
+  // ---- chorus (full power, soaring lead + shimmer) ----
+  [16, stack(arpFull, padChorus, bassMain, drumsFull,
+             leadChorus, shimmer)],
+
+  // ---- vocal climax x3 ----
+  [6,  stack(padChorus, bassMain, drumsFull, vocalPower,
+             arpFull, shimmer)],
+
+  // ---- echo trail-off ----
+  [3,  stack(vocalEcho, arpSig.gain(.3), kickLite.gain(.3))],
+
+  // ---- outro swell (dreamy D chord fades into nothing) ----
+  [8,  stack(outroSwell, arpSig.gain(.15))]
+)
