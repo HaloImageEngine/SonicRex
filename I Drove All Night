@@ -1,0 +1,115 @@
+//============================================================
+//  "I Drove All Night" - Strudel instrumental arrangement
+//  Feel: driving synth-pop, ~135 BPM, key of Bb major
+//  Chords (live version harmony): Dm / Eb / Bb / Gm  (+F lift)
+//  Now ~2:24; final ~30s = vocal-formant hook climax + trail-off.
+//
+//  NOTE on "vocals": Strudel cannot synthesize words. The hook is
+//  played as a MELODY through vowel-formant synthesis (vowel())
+//  for a wordless vocal "aah/ooh" timbre. Contour is my own
+//  interpretation of the title phrase - no lyrics, not exact.
+//------------------------------------------------------------
+//  MODIFICATION LOG
+//  2026-06-21  Lux  Initial Strudel arrangement (64 bars).
+//  2026-06-21  Lux  Extended to ~2:24. Reworked tail to build
+//                   (verse2 -> pre-build) into a vocal CLIMAX:
+//                   formant hook x3 "with power", then echo +
+//                   long swell trail-off in the last ~30s.
+//============================================================
+
+setcpm(135 / 4)   // 1 cycle = 1 bar @ 135 BPM, 4/4
+
+// ---------- DRUMS ----------
+let kickFloor = s("bd*4").bank("RolandTR909").gain(0.95)
+let kickVerse = s("bd ~ ~ bd ~ ~ bd ~").bank("RolandTR909").gain(0.9)
+let clap      = s("~ cp ~ cp").bank("RolandTR909").gain(0.7)
+let hats      = s("hh*8").bank("RolandTR909").gain(0.32).pan(sine.range(.42, .58))
+let ohat      = s("[~ oh]*2").bank("RolandTR909").gain(0.22)
+
+let drumsLite = stack(kickVerse, clap.gain(0.5), hats.gain(0.22))
+let drumsFull = stack(kickFloor, clap, hats, ohat)
+
+// ---------- BASS (plucky driving 8ths) ----------
+let bassVerse = note("<g2 eb2 bb2 d2>").struct("x*8")
+  .s("sawtooth").lpf(slider(750, 100, 3000)).lpq(7)
+  .decay(.12).sustain(.12).gain(0.8).orbit(3)
+
+let bassPre = note("<eb2 f2 g2 f2>").struct("x*8")
+  .s("sawtooth").lpf(slider(950, 100, 3000)).lpq(7)
+  .decay(.12).sustain(.14).gain(0.82).orbit(3)
+
+let bassChorus = note("<d2 eb2 bb2 g2>").struct("x*8")
+  .s("sawtooth").lpf(slider(1100, 100, 3000)).lpq(6)
+  .decay(.13).sustain(.16).gain(0.85).orbit(3)
+
+// ---------- PADS (supersaw) ----------
+let padVerse = note("<[g3,bb3,d4] [eb3,g3,bb3] [bb3,d4,f4] [d4,f4,a4]>")
+  .s("supersaw").attack(.04).release(.5)
+  .lpf(slider(1600, 200, 6000)).lpq(4).lpenv(2)
+  .gain(0.45).room(.4).orbit(2)
+
+let padPre = note("<[eb3,g3,bb3] [f3,a3,c4] [g3,bb3,d4] [f3,a3,c4]>")
+  .s("supersaw").attack(.03).release(.45)
+  .lpf(slider(2400, 200, 6000)).lpq(3).lpenv(3)
+  .gain(0.5).room(.4).orbit(2)
+
+let padChorus = note("<[d4,f4,a4] [eb4,g4,bb4] [bb3,d4,f4] [g3,bb3,d4]>")
+  .s("supersaw").attack(.02).release(.5)
+  .lpf(slider(3400, 200, 6000)).lpq(3).lpenv(2)
+  .gain(0.55).room(.5).orbit(2)
+
+// ---------- LEAD HOOK (instrumental) ----------
+let leadChorus = note("<[f4 f4 d4 ~] [g4 ~ f4 eb4] [d4 ~ bb3 ~] [bb3 a3 g3 ~]>")
+  .s("supersaw").lpf(3200).lpq(2)
+  .delay(.35).delaytime(.1875).delayfeedback(.35)
+  .room(.3).gain(0.6).orbit(2)
+
+let arpChorus = note("<[bb4 d5 f5 d5] [eb4 g4 bb4 g4] [d4 f4 bb4 f4] [d4 g4 bb4 g4]>*2")
+  .s("triangle").gain(0.22).delay(.25).room(.4).pan(rand).orbit(2)
+
+// ============================================================
+//  SYNTH-VOCAL HOOK  (title-phrase melody, vowel formants)
+//  One statement = 2 bars. Sung x3 in the 6-bar climax.
+// ============================================================
+let hookMel = "<[f4 f4 g4 f4] [eb4 d4 bb3 ~]>"
+
+let vocalLead = note(hookMel)
+  .s("supersaw").vowel("<a a e o>")
+  .attack(.02).release(.3).lpf(3600).lpq(1)
+  .room(.35).delay(.3).delaytime(.1875).delayfeedback(.3)
+  .gain(0.72).orbit(2)
+
+// "with power" = octave-down body + fifth-above shimmer stacked on top
+let vocalPower = stack(
+  vocalLead,
+  note(hookMel).add(note(-12)).s("sawtooth").vowel("o")
+    .attack(.02).release(.3).lpf(2600).gain(.42).room(.3).orbit(2),
+  note(hookMel).add(note(7)).s("supersaw").vowel("a")
+    .attack(.02).release(.3).lpf(3800).gain(.30).room(.4).orbit(2)
+)
+
+// trail-off: one more statement drenched in feedback delay + reverb
+let vocalEcho = note(hookMel)
+  .s("supersaw").vowel("<a o>")
+  .attack(.02).release(.4).lpf(2600).lpq(1)
+  .delay(.6).delaytime(.1875).delayfeedback(.6).room(.85)
+  .gain(0.6).orbit(2)
+
+// long tonic swell that rings out under/after the echo (held 8 bars)
+let outroSwell = note("[bb2,bb3,d4,f4]").slow(8)
+  .s("supersaw").attack(2).decay(3).sustain(.5).release(6)
+  .lpf(1700).lpq(2).gain(0.5).room(.9).orbit(2)
+
+// ---------- ARRANGE (~2:24, vocal outro = last ~30s) ----------
+arrange(
+  [8,  stack(padVerse, bassVerse.gain(.45), hats.gain(.18))],           // intro
+  [16, stack(padVerse, bassVerse, drumsLite)],                          // verse 1
+  [8,  stack(padPre, bassPre, drumsFull)],                              // pre-chorus
+  [16, stack(padChorus, bassChorus, drumsFull, leadChorus, arpChorus)], // chorus 1
+  [8,  stack(padVerse, bassVerse, drumsLite)],                          // verse 2
+  [8,  stack(padPre, bassPre, drumsFull)],                              // build
+  // ---- last ~30s ----
+  [6,  stack(padChorus, bassChorus, drumsFull, vocalPower, arpChorus)], // VOCAL x3 (power)
+  [3,  stack(vocalEcho, kickFloor.gain(.45))],                          // echo (trail begins)
+  [8,  outroSwell]                                                      // long fade swell
+)
